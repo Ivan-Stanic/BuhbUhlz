@@ -78,8 +78,6 @@ public class BuhbUhlz extends ApplicationAdapter {
 		while (i < bubbleXs.size()) {
 			makeBubble(i);
 			i++;
-			i--;
-			i++;
 		}
 		if (bubbleTime) {
 			makeBubble(i);
