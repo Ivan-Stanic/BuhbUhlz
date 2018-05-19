@@ -49,6 +49,7 @@ public class BuhbUhlz extends ApplicationAdapter {
 	public void makeBubble(int i) {
 		float startY;
 		float startX;
+		float radius = 100;
 		if ((i == bubbleXs.size() && bubbleXs.size() > 0) || bubbleXs.size() == 0) {
 			startY = rand.nextInt(Gdx.graphics.getHeight());
 			startX = rand.nextInt(Gdx.graphics.getWidth());
@@ -62,8 +63,18 @@ public class BuhbUhlz extends ApplicationAdapter {
 		Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
 		shapeRenderer.begin(ShapeType.Filled);
 		shapeRenderer.setColor(0f, 1f, 0f, .5f);
-		shapeRenderer.circle(startX, startY, 100);
-		shapeRenderer.end();
+		shapeRenderer.circle(startX, startY, radius);
+		shapeRenderer.setColor(1f, 1f, 1f, .08f);
+		shapeRenderer.circle(startX - radius/3, startY + radius/3, (float) (radius * 0.5));
+		shapeRenderer.setColor(1f, 1f, 1f, .08f);
+		shapeRenderer.circle(startX - radius/3, startY + radius/3, (float) (radius * 0.4));
+		shapeRenderer.setColor(1f, 1f, 1f, .08f);
+		shapeRenderer.circle(startX - radius/3, startY + radius/3, (float) (radius * 0.3));
+		shapeRenderer.setColor(1f, 1f, 1f, .08f);
+		shapeRenderer.circle(startX - radius/3, startY + radius/3, (float) (radius * 0.2));
+        shapeRenderer.setColor(1f, 1f, 1f, .08f);
+        shapeRenderer.circle(startX - radius/3, startY + radius/3, (float) (radius * 0.1));
+        shapeRenderer.end();
 	}
 
 	@Override
