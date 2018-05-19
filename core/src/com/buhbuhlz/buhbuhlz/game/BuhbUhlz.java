@@ -12,6 +12,8 @@ import com.badlogic.gdx.utils.Timer;
 import java.util.ArrayList;
 import java.util.Random;
 
+import static java.lang.Math.floor;
+
 
 public class BuhbUhlz extends ApplicationAdapter {
 	SpriteBatch batch;
@@ -21,6 +23,8 @@ public class BuhbUhlz extends ApplicationAdapter {
 
 	ArrayList<Integer> bubbleXs = new ArrayList<Integer>();
 	ArrayList<Integer> bubbleYs = new ArrayList<Integer>();
+	ArrayList<Integer> bubbleRs = new ArrayList<Integer>(); //Bubble radius
+	ArrayList<Integer> bubbleColors = new ArrayList<Integer>();
 	ShapeRenderer shapeRenderer;
 
 	public void startTimer() {
@@ -49,20 +53,31 @@ public class BuhbUhlz extends ApplicationAdapter {
 	public void makeBubble(int i) {
 		float startY;
 		float startX;
-		float radius = 100;
+		float radius;
+		float color;
 		if ((i == bubbleXs.size() && bubbleXs.size() > 0) || bubbleXs.size() == 0) {
 			startY = rand.nextInt(Gdx.graphics.getHeight());
 			startX = rand.nextInt(Gdx.graphics.getWidth());
+			radius = Gdx.graphics.getWidth()/10;
+			color = rand.nextInt(8);
 			bubbleYs.add(Math.round(startY));
 			bubbleXs.add(Math.round(startX));
+			bubbleRs.add(Math.round(radius));
+			bubbleColors.add(Math.round(color));
 		} else {
 			startY = bubbleYs.get(i);
 			startX = bubbleXs.get(i);
+			radius = (float) (bubbleRs.get(i)*1.05);
+            bubbleRs.set(i,Math.round(radius));
+            color = bubbleColors.get(i);
 		}
+		float R = (float) floor(color/4);
+		float G = (float) floor((color % 4)/2);
+		float B = (float) (color % 4)%2;
 		Gdx.gl.glEnable(GL20.GL_BLEND);
 		Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
 		shapeRenderer.begin(ShapeType.Filled);
-		shapeRenderer.setColor(0f, 1f, 0f, .5f);
+		shapeRenderer.setColor(R, G, B, .5f);
 		shapeRenderer.circle(startX, startY, radius);
 		shapeRenderer.setColor(1f, 1f, 1f, .08f);
 		shapeRenderer.circle(startX - radius/3, startY + radius/3, (float) (radius * 0.5));
