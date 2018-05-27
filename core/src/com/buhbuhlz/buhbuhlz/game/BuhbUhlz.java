@@ -67,7 +67,7 @@ public class BuhbUhlz extends ApplicationAdapter {
 		} else {
 			startY = bubbleYs.get(i);
 			startX = bubbleXs.get(i);
-			radius = (float) (bubbleRs.get(i)*1.05);
+			radius = (float) (bubbleRs.get(i)*1.02);
             bubbleRs.set(i,Math.round(radius));
             color = bubbleColors.get(i);
 		}
@@ -110,6 +110,18 @@ public class BuhbUhlz extends ApplicationAdapter {
 			bubbleTime = false;
 			startTimer();
 		}
+		i = 0;
+		while (i < bubbleXs.size()) {
+			if ((float) bubbleRs.get(i) > (float) Gdx.graphics.getWidth()/3){
+				bubbleRs.remove(i);
+				bubbleXs.remove(i);
+				bubbleYs.remove(i);
+				bubbleColors.remove(i);
+				i--;
+			}
+			i++;
+		}
+
 
 	}
 	
