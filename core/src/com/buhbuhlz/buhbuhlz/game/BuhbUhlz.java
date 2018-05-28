@@ -8,12 +8,14 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.utils.Logger;
+import com.badlogic.gdx.utils.TimeUtils;
 import com.badlogic.gdx.utils.Timer;
 
 import java.util.ArrayList;
 import java.util.Random;
 
 import static java.lang.Math.floor;
+import static java.lang.Math.max;
 
 
 public class BuhbUhlz extends ApplicationAdapter {
@@ -21,17 +23,21 @@ public class BuhbUhlz extends ApplicationAdapter {
 	Texture background;
 	Random rand = new Random();
 	boolean bubbleTime = false;
-	double bubbleTimer = 3;
+	double bubbleTimer = 3; //sec
+	double bubbleLife = 1.5; //sec
+	float startPortion = 10; //screen portion (10 = 10th of the screen) for the start bubble size
+	float maxPortion = 4; //screen portion (10 = 10th of the screen) for the max bubble size
+
 	Logger logger;
 
 	ArrayList<Integer> bubbleXs = new ArrayList<Integer>();
 	ArrayList<Integer> bubbleYs = new ArrayList<Integer>();
-	ArrayList<Integer> bubbleRs = new ArrayList<Integer>(); //Bubble radius
 	ArrayList<Integer> bubbleColors = new ArrayList<Integer>();
+	ArrayList<Long> bubbleCreationTime = new ArrayList<Long>();
 	ShapeRenderer shapeRenderer;
 
 	public void startTimer() {
-		double bubbleDelay = (Math.abs(rand.nextGaussian()) * (-3)) + 3;
+		double bubbleDelay = (Math.abs(rand.nextGaussian()) * (-bubbleTimer)) + bubbleTimer;
 		if (bubbleDelay < 0.1) {
 			bubbleDelay = 0.1;
 		}
@@ -63,21 +69,26 @@ public class BuhbUhlz extends ApplicationAdapter {
 		float startX;
 		float radius;
 		float color;
+		float screenWidth = Gdx.graphics.getWidth();
+		long creationTime;
+		float startRadius = screenWidth/startPortion;
+		float maxRadius = screenWidth/maxPortion;
 		if ((i == bubbleXs.size() && bubbleXs.size() > 0) || bubbleXs.size() == 0) {
 			startY = rand.nextInt(Gdx.graphics.getHeight());
 			startX = rand.nextInt(Gdx.graphics.getWidth());
-			radius = Gdx.graphics.getWidth()/10;
+			radius = startRadius;
 			color = rand.nextInt(8);
+			creationTime = TimeUtils.millis();
 			bubbleYs.add(Math.round(startY));
 			bubbleXs.add(Math.round(startX));
-			bubbleRs.add(Math.round(radius));
 			bubbleColors.add(Math.round(color));
+			bubbleCreationTime.add(creationTime);
 		} else {
 			startY = bubbleYs.get(i);
 			startX = bubbleXs.get(i);
-			radius = (float) (bubbleRs.get(i)*1.02);
-            bubbleRs.set(i,Math.round(radius));
             color = bubbleColors.get(i);
+            creationTime = bubbleCreationTime.get(i);
+			radius = (float) (((TimeUtils.millis() - creationTime) * (maxRadius - startRadius))/(bubbleLife * 1000)) + startRadius;
 		}
 		float R = (float) floor(color/4);
 		float G = (float) floor((color % 4)/2);
@@ -120,11 +131,11 @@ public class BuhbUhlz extends ApplicationAdapter {
 		}
 		i = 0;
 		while (i < bubbleXs.size()) {
-			if ((float) bubbleRs.get(i) > (float) Gdx.graphics.getWidth()/3){
-				bubbleRs.remove(i);
+			if ((TimeUtils.millis() - bubbleCreationTime.get(i)) > bubbleLife * 1000){
 				bubbleXs.remove(i);
 				bubbleYs.remove(i);
 				bubbleColors.remove(i);
+				bubbleCreationTime.remove(i);
 				i--;
 			}
 			i++;
