@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
+import com.badlogic.gdx.utils.Logger;
 import com.badlogic.gdx.utils.Timer;
 
 import java.util.ArrayList;
@@ -20,6 +21,8 @@ public class BuhbUhlz extends ApplicationAdapter {
 	Texture background;
 	Random rand = new Random();
 	boolean bubbleTime = false;
+	double bubbleTimer = 3;
+	Logger logger;
 
 	ArrayList<Integer> bubbleXs = new ArrayList<Integer>();
 	ArrayList<Integer> bubbleYs = new ArrayList<Integer>();
@@ -28,6 +31,11 @@ public class BuhbUhlz extends ApplicationAdapter {
 	ShapeRenderer shapeRenderer;
 
 	public void startTimer() {
+		double bubbleDelay = (Math.abs(rand.nextGaussian()) * (-3)) + 3;
+		if (bubbleDelay < 0.1) {
+			bubbleDelay = 0.1;
+		}
+		//logger.info(String.valueOf(bubbleDelay));
 		Timer.schedule(new Timer.Task()
 		{
 			@Override
@@ -36,7 +44,7 @@ public class BuhbUhlz extends ApplicationAdapter {
 				bubbleTime = true;
 				Timer.instance().clear();
 			}
-		}, 3f);
+		}, (float) bubbleDelay);
 	}
 
 	@Override
