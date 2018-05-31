@@ -188,7 +188,7 @@ public class BuhbUhlz extends ApplicationAdapter implements ApplicationListener,
                 radius = bubbleRs.get(i);
                 currentY = bubbleYs.get(i);
                 currentX = bubbleXs.get(i);
-                if (Math.sqrt(Math.pow(screenX - currentX, 2) + Math.pow(screenY - currentY, 2)) <= radius) {
+                if (Math.sqrt(Math.pow(screenX - currentX, 2) + Math.pow((Gdx.graphics.getHeight() - screenY) - currentY, 2)) <= radius) {
                     //Gdx.app.log("Touched:", "Catch!!!");
                     bubbleTouched.set(i, true);
                     i = bubbleXs.size(); //exit loop
