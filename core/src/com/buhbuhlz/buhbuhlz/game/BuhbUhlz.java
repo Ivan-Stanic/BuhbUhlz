@@ -93,7 +93,7 @@ public class BuhbUhlz extends ApplicationAdapter implements ApplicationListener,
 		bubbleRs.add(radius);
 		bubbleDistance.add(actualMaxDistance);
 		bubbleHeading.add(heading);
-		startTimer();
+		//startTimer();
 		drawBubble(color, currentX, currentY, radius);
 	}
 
@@ -121,7 +121,7 @@ public class BuhbUhlz extends ApplicationAdapter implements ApplicationListener,
 		float B = (color % 4)%2;
 		Gdx.gl.glEnable(GL20.GL_BLEND);
 		Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
-		shapeRenderer.begin(ShapeType.Filled);
+		//shapeRenderer.begin(ShapeType.Filled);
 		shapeRenderer.setColor(R, G, B, .5f);
 		shapeRenderer.circle(currentX, currentY, radius);
 		shapeRenderer.setColor(1f, 1f, 1f, .06f);
@@ -134,7 +134,7 @@ public class BuhbUhlz extends ApplicationAdapter implements ApplicationListener,
 		shapeRenderer.circle(currentX - radius/3, currentY + radius/3, (float) (radius * 0.2));
 		shapeRenderer.setColor(1f, 1f, 1f, .06f);
 		shapeRenderer.circle(currentX - radius/3, currentY + radius/3, (float) (radius * 0.1));
-		shapeRenderer.end();
+		//shapeRenderer.end();
 	}
 
 	@Override
@@ -145,6 +145,7 @@ public class BuhbUhlz extends ApplicationAdapter implements ApplicationListener,
 
 		batch.end();
 
+		shapeRenderer.begin(ShapeType.Filled);
 		int i = 0;
 		while (i < bubbleXs.size()) {
             if (! bubbleTouched.get(i)) {
@@ -152,6 +153,12 @@ public class BuhbUhlz extends ApplicationAdapter implements ApplicationListener,
             }
 			i++;
 		}
+		if (bubbleTime) {
+			bubbleTime = false;
+			newBubble();
+			startTimer();
+		}
+		shapeRenderer.end();
 		i = 0;
 		while (i < bubbleXs.size()) {
 			if ((TimeUtils.millis() - bubbleCreationTime.get(i)) > bubbleLife * 1000){
@@ -166,11 +173,6 @@ public class BuhbUhlz extends ApplicationAdapter implements ApplicationListener,
 				i--;
 			}
 			i++;
-		}
-		if (bubbleTime) {
-			bubbleTime = false;
-			newBubble();
-			//startTimer();
 		}
 
 
