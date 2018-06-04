@@ -32,8 +32,64 @@ public class BuhbUhlz extends ApplicationAdapter implements ApplicationListener,
 	float startPortion = 10; //screen portion (10 = 10th of the screen) for the start bubble size
 	float maxPortion = 4; //screen portion (10 = 10th of the screen) for the max bubble size
 	float maxDistance = 3; //screen portion (10 = 10th of the screen) for the max bubble distance
+	float screenWidth;
+	float startRadius;
+	float maxRadius;
 
-	ArrayList<Integer> bubbleXs = new ArrayList<Integer>();
+	public class Bubble {
+		//Attributes
+		int startX;
+		int startY;
+		int color;
+		long creationTime;
+		float currentRadius;
+		float heading;
+		float distance;
+		boolean touched;
+		//Constructor
+		public Bubble() {
+			float actualMaxDistance = screenWidth/maxDistance; // Temporarily set to constant value and adjusted for screen size
+			this.startX = (int) (rand.nextInt((int) (Gdx.graphics.getWidth() - (4 * startRadius))) + (2 * startRadius)); //center of the new bubble is 2 starting radii from the edge of the screen
+			this.startY = (int) (rand.nextInt((int) (Gdx.graphics.getHeight() - (4 * startRadius))) + (2 * startRadius)); //center of the new bubble is 2 starting radii from the edge of the screen
+			this.color = rand.nextInt(6) + 1; //from 1 to 6 (no white (0) and black (7))
+			this.creationTime = TimeUtils.millis();
+			this.currentRadius = startRadius;
+			this.heading = rand.nextInt(360);
+			this.distance = actualMaxDistance;
+			this.touched = false;
+			this.drawBubble();
+		}
+		//Methods
+		public void drawBubble() {
+			float R = (float) floor(this.color/4);
+			float G = (float) floor((this.color % 4)/2);
+			float B = (this.color % 4)%2;
+			this.currentRadius = this.radius();
+			shapeRenderer.setColor(R, G, B, .5f);
+			shapeRenderer.circle(this.currentLocation(startX), this.currentLocation(startY), this.currentRadius);
+			shapeRenderer.setColor(1f, 1f, 1f, .06f);
+			for (int i = 1; i <= 5; i++) {
+				shapeRenderer.circle(this.currentLocation(startX) - this.currentRadius/3, this.currentLocation(startY) + this.currentRadius/3, (float) (this.currentRadius * i * 0.1));
+			}
+		}
+		public boolean isTouched(int screenX, int screenY) {
+			if (Math.sqrt(Math.pow(screenX - this.currentLocation(startX), 2) + Math.pow((Gdx.graphics.getHeight() - screenY) - this.currentLocation(startY), 2)) <= this.currentRadius) {
+				 this.touched = true;
+			}
+			return this.touched;
+		}
+		private float radius() {
+			return (float) (((TimeUtils.millis() - this.creationTime) * (maxRadius - startRadius))/(bubbleLife * 1000)) + startRadius;
+		}
+		private float currentDistance() {
+			return (float) (((TimeUtils.millis() - this.creationTime) * this.distance)/(bubbleLife * 1000));
+		}
+		private float currentLocation(int startLocation) {
+			return (float) (startLocation + (this.currentDistance() * Math.sin(Math.toRadians(this.heading))));
+		}
+	}
+
+	/*ArrayList<Integer> bubbleXs = new ArrayList<Integer>();
 	ArrayList<Integer> bubbleYs = new ArrayList<Integer>();
 	ArrayList<Integer> bubbleColors = new ArrayList<Integer>();
 	ArrayList<Long> bubbleCreationTime = new ArrayList<Long>();
@@ -41,7 +97,8 @@ public class BuhbUhlz extends ApplicationAdapter implements ApplicationListener,
 	ArrayList<Boolean> bubbleTouched = new ArrayList<Boolean>();
 	ArrayList<Float> bubbleHeading = new ArrayList<Float>(); //bubble heading in rad, may dynamically change on higher levels
 	ArrayList<Float> bubbleDistance = new ArrayList<Float>(); //the total distance of bubble movement in px (currently set to the same value for all, may be different in the future or on the higher game levels)
-	//distance may also determine the speed of the bubble
+	//distance may also determine the speed of the bubble*/
+	ArrayList<Bubble> bubbleList = new ArrayList<Bubble>();
 	ShapeRenderer shapeRenderer;
 
 	public void startTimer() {
@@ -70,11 +127,15 @@ public class BuhbUhlz extends ApplicationAdapter implements ApplicationListener,
 
         Gdx.input.setInputProcessor(this);
 
+		screenWidth = Gdx.graphics.getWidth();
+		startRadius = screenWidth/startPortion;
+		maxRadius = screenWidth/maxPortion;
+
 		startTimer();
 
 	}
 
-	public void newBubble() {
+	/*public void newBubble() {
 		float screenWidth = Gdx.graphics.getWidth();
 		float startRadius = screenWidth/startPortion;
 		float maxRadius = screenWidth/maxPortion;
@@ -119,8 +180,8 @@ public class BuhbUhlz extends ApplicationAdapter implements ApplicationListener,
 		float R = (float) floor(color/4);
 		float G = (float) floor((color % 4)/2);
 		float B = (color % 4)%2;
-		Gdx.gl.glEnable(GL20.GL_BLEND);
-		Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+		//Gdx.gl.glEnable(GL20.GL_BLEND);
+		//Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
 		//shapeRenderer.begin(ShapeType.Filled);
 		shapeRenderer.setColor(R, G, B, .5f);
 		shapeRenderer.circle(currentX, currentY, radius);
@@ -135,32 +196,40 @@ public class BuhbUhlz extends ApplicationAdapter implements ApplicationListener,
 		shapeRenderer.setColor(1f, 1f, 1f, .06f);
 		shapeRenderer.circle(currentX - radius/3, currentY + radius/3, (float) (radius * 0.1));
 		//shapeRenderer.end();
-	}
+	}*/
 
 	@Override
 	public void render () {
 		batch.begin();
-
 		batch.draw(background,(-Gdx.graphics.getWidth() * Gdx.graphics.getHeight() / background.getHeight() / 2) + (Gdx.graphics.getWidth() / 2),0,Gdx.graphics.getWidth() * Gdx.graphics.getHeight() / background.getHeight(),Gdx.graphics.getHeight());
-
 		batch.end();
 
+		Gdx.gl.glEnable(GL20.GL_BLEND);
+		Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
 		shapeRenderer.begin(ShapeType.Filled);
 		int i = 0;
-		while (i < bubbleXs.size()) {
+		/*while (i < bubbleXs.size()) {
             if (! bubbleTouched.get(i)) {
                 existingBubble(i);
             }
 			i++;
+		}*/
+		while (i < bubbleList.size()) {
+			if(! bubbleList.get(i).touched) {
+				bubbleList.get(i).drawBubble();
+			}
+			i++;
 		}
 		if (bubbleTime) {
 			bubbleTime = false;
-			newBubble();
+			//newBubble();
+			Bubble newBubble = new Bubble();
+			bubbleList.add(newBubble);
 			startTimer();
 		}
 		shapeRenderer.end();
 		i = 0;
-		while (i < bubbleXs.size()) {
+		/*while (i < bubbleXs.size()) {
 			if ((TimeUtils.millis() - bubbleCreationTime.get(i)) > bubbleLife * 1000){
 				bubbleXs.remove(i);
 				bubbleYs.remove(i);
@@ -170,6 +239,13 @@ public class BuhbUhlz extends ApplicationAdapter implements ApplicationListener,
 				bubbleRs.remove(i);
 				bubbleHeading.remove(i);
 				bubbleDistance.remove(i);
+				i--;
+			}
+			i++;
+		}*/
+		while (i < bubbleList.size()) {
+			if ((TimeUtils.millis() - bubbleList.get(i).creationTime) > bubbleLife * 1000) {
+				bubbleList.remove(i);
 				i--;
 			}
 			i++;
@@ -202,7 +278,7 @@ public class BuhbUhlz extends ApplicationAdapter implements ApplicationListener,
 	@Override
 	public boolean touchDown(int screenX, int screenY, int pointer, int button) {
 		int i = 0;
-        float radius;
+        /*float radius;
         float currentY;
         float currentX;
         while (i < bubbleXs.size()) {
@@ -216,7 +292,15 @@ public class BuhbUhlz extends ApplicationAdapter implements ApplicationListener,
                 }
             }
             i++;
-        }
+        }*/
+        while (i < bubbleList.size()) {
+        	if (! bubbleList.get(i).touched) {
+        		if (bubbleList.get(i).isTouched(screenX, screenY)) {
+					i = bubbleList.size(); //exit loop
+				}
+			}
+			i++;
+		}
         return false;
 	}
 
